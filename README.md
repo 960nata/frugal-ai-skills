@@ -1,81 +1,162 @@
-# frugal-ai-skills
+<p align="center">
+  <img src="assets/banner.svg" alt="frugal-ai-skills" width="100%">
+</p>
 
-Agent skills for building **AI products that stay cheap, safe, and alive on free tiers
-and serverless**. Each skill is a battle-tested pattern pulled from a production
-Next.js + LLM app that runs multi-agent analysis, auto-publishing, and video rendering
-on quota-limited infrastructure.
+<p align="center">
+  <b>Your AI agent writes code fast. These skills make it write code that survives production on a $0 budget.</b>
+</p>
 
-Works with any agent that reads the open **Agent Skills** format (`SKILL.md` with YAML
-frontmatter): Claude Code, OpenAI Codex (GPT), Google Antigravity, Gemini CLI, and others.
+<p align="center">
+  <img alt="skills" src="https://img.shields.io/badge/skills-10-34d399">
+  <img alt="format" src="https://img.shields.io/badge/format-Agent%20Skills%20(SKILL.md)-0b1220">
+  <img alt="agents" src="https://img.shields.io/badge/works%20with-Claude%20%7C%20Codex%20%7C%20Antigravity%20%7C%20Gemini-a3e635">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey">
+</p>
 
-## Skills
+<p align="center">
+  <a href="#-install-in-30-seconds">Install</a> ·
+  <a href="#-the-skills">Skills</a> ·
+  <a href="#-how-it-works">How it works</a> ·
+  <a href="#-bahasa-indonesia">Bahasa Indonesia</a>
+</p>
 
-| Skill | What it gives you |
-| ----- | ----------------- |
-| [`llm-key-rotation`](skills/llm-key-rotation/SKILL.md) | Pool many API keys, rotate evenly, cool down on 429/quota/auth, fall back across providers |
-| [`fetch-timeout-guard`](skills/fetch-timeout-guard/SKILL.md) | "No naked fetch": one wrapper with timeout + signal + readable errors |
-| [`layered-api-shield`](skills/layered-api-shield/SKILL.md) | Cheapest-first defense: free shield → blocklist → 1-command rate limit → global AI budget |
-| [`llm-fact-guard`](skills/llm-fact-guard/SKILL.md) | Catch invented numbers & banned words; second model may only downgrade |
-| [`multi-agent-council`](skills/multi-agent-council/SKILL.md) | Role-based agent committee with independence rules, stale-data abstain, resumable turns |
-| [`serverless-cron-dispatcher`](skills/serverless-cron-dispatcher/SKILL.md) | Many scheduled jobs from one hourly cron, timezone-aware, idempotent leases |
-| [`html-allowlist-sanitizer`](skills/html-allowlist-sanitizer/SKILL.md) | Allowlist sanitizer for LLM/scraped HTML + XSS payload test suite |
-| [`audio-lipsync-frames`](skills/audio-lipsync-frames/SKILL.md) | Loudness-driven 3-mouth lip-sync for Remotion / frame renderers |
-| [`social-autopost-pipeline`](skills/social-autopost-pipeline/SKILL.md) | Threads + Instagram carousel auto-posting with dedupe, slots, token refresh |
-| [`persona-voice-prompt`](skills/persona-voice-prompt/SKILL.md) | One shared brand-voice module (e.g. Indonesian Gen Z) that never overrides fact rules |
+---
 
-## Install
+## 🤔 Why this exists
+
+Ask any coding agent to "add an AI feature" and you'll usually get something that works
+in a demo, then breaks in production:
+
+- 💸 **The free LLM key dies by noon.** One key does all the work while nine more sit unused.
+- 🧟 **A `fetch` hangs forever** and burns the whole serverless function budget.
+- 🤖 **A scanner drains your Redis quota.** It never gets in. It just makes you pay to reject it 5,000 times.
+- 🎲 **The AI makes up a number.** It looks exactly as confident as the real ones, and it ships.
+- 🔁 **A cron job runs twice, or never**, because the platform gives you two cron slots.
+
+Every skill here comes from a real production app (multi-agent market analysis,
+auto-publishing to social, AI video reels) that has to **run on free tiers**. These are
+the fixes that lasted, written as instructions any agent can follow.
+
+## ⚡ Install in 30 seconds
 
 ```bash
-git clone https://github.com/<you>/frugal-ai-skills.git
-cd frugal-ai-skills
-./install.sh            # all detected agents (symlinks, so `git pull` updates them)
-./install.sh claude     # or: codex | antigravity | gemini
-./install.sh --copy all # copy instead of symlink
-./install.sh --project /path/to/repo   # install into one project only
+git clone https://github.com/NataKun7/frugal-ai-skills.git
+cd frugal-ai-skills && ./install.sh
 ```
 
-| Agent | Global folder | Per-project folder |
-| ----- | ------------- | ------------------ |
+That's it. The installer finds which agents you have and symlinks the skills in, so a
+`git pull` later updates them all.
+
+<details>
+<summary><b>More install options</b></summary>
+
+```bash
+./install.sh claude codex          # only these agents
+./install.sh all                   # every supported agent
+./install.sh --copy all            # copy instead of symlink
+./install.sh --project ./my-app    # install into one repo (commit it for your team)
+```
+
+| Agent | Global | Per project |
+| ----- | ------ | ----------- |
 | Claude Code | `~/.claude/skills/` | `.claude/skills/` |
 | OpenAI Codex (GPT) | `~/.codex/skills/` | `.agents/skills/` |
 | Google Antigravity | `~/.gemini/antigravity/skills/` | `.agent/skills/` |
 | Gemini CLI | `~/.gemini/skills/` | `.gemini/skills/` |
 
-> Agent folders change between releases. If a skill does not show up, check your
-> agent's docs for the current skills path and symlink `skills/<name>` there.
+Skill folders sometimes move between agent releases. If a skill doesn't appear, check
+your agent's docs and symlink `skills/<name>` into the new location.
 
-**Claude.ai / ChatGPT (web):** zip a single skill folder (`cd skills && zip -r llm-key-rotation.zip llm-key-rotation`)
-and upload it where your plan supports custom skills. Or paste the `SKILL.md` content
-into a project's instructions.
+**Claude.ai / ChatGPT web:** zip one skill folder and upload it where your plan supports
+custom skills, or paste its `SKILL.md` into a project's instructions.
+**Any other agent:** point it at [`AGENTS.md`](AGENTS.md).
+</details>
 
-**Any other agent:** point it at [`AGENTS.md`](AGENTS.md), which lists every skill and when to load it.
+## 🧰 The skills
 
-## Usage
+### 🔑 Survive the quota
 
-You don't call skills by hand. Ask normally — the agent loads a skill when its
-`description` matches:
+| Skill | The problem | What your agent does instead |
+| ----- | ----------- | ---------------------------- |
+| [**llm-key-rotation**](skills/llm-key-rotation/SKILL.md) | 10 free keys, but key #1 takes every hit | Spreads load from a random start key, cools down keys based on *why* they failed (60 s / until the daily reset / 24 h), falls back to the next provider, and never logs a full key |
+| [**layered-api-shield**](skills/layered-api-shield/SKILL.md) | Bots spend your KV quota just to be rejected | Runs checks cheapest first: a 0-command pattern shield, a remembered blocklist, then a rate limit in **1 Redis EVAL instead of 3 commands**, plus a global daily AI budget |
+| [**fetch-timeout-guard**](skills/fetch-timeout-guard/SKILL.md) | One hung API call eats a 300 s function | Routes every outbound call through one wrapper with a timeout, caller-cancel support, and an error that names who didn't answer |
 
-- "My Gemini keys keep hitting 429, I have 12 of them" → `llm-key-rotation`
-- "Add rate limiting, Upstash quota keeps running out" → `layered-api-shield`
-- "The AI summary invents numbers" → `llm-fact-guard`
-- "Make my mascot talk in the Remotion video" → `audio-lipsync-frames`
+### 🧠 Keep the AI honest
 
-## Contributing
+| Skill | The problem | What your agent does instead |
+| ----- | ----------- | ---------------------------- |
+| [**llm-fact-guard**](skills/llm-fact-guard/SKILL.md) | Hallucinated numbers look exactly like real ones | Checks every number against the source (works with `1.234` and `1,234` formats and rounding), blocks banned phrases, then asks a second model that is **only allowed to lower confidence** |
+| [**multi-agent-council**](skills/multi-agent-council/SKILL.md) | Four agents end up repeating the first one, mistakes included | Gives every agent the same facts, adds an independence rule (`AGREE: <evidence>` / `CORRECTION: …`), refuses to run on stale data, and saves each turn so a timeout resumes instead of paying again |
+| [**persona-voice-prompt**](skills/persona-voice-prompt/SKILL.md) | "Make it casual" quietly breaks the accuracy rules | Puts the brand voice in one shared module (with an Indonesian Gen Z example) and keeps fact rules out of its reach |
 
-1. One folder per skill in `skills/`, kebab-case, folder name = `name:` in frontmatter.
-2. `description` says **what** it does and **when** to use it (trigger words matter).
-3. Keep `SKILL.md` under ~150 lines; move long material to `references/` in the same folder.
-4. No secrets, account IDs, or company-specific names. Run `./scripts/validate.sh` before a PR.
+### ⚙️ Ship on serverless
 
----
+| Skill | The problem | What your agent does instead |
+| ----- | ----------- | ---------------------------- |
+| [**serverless-cron-dispatcher**](skills/serverless-cron-dispatcher/SKILL.md) | The platform gives you 2 cron slots and you need 20 jobs | Runs one hourly dispatcher over a schedule table with timezone and trading-day rules, and claims each batch with a single SQL `ON CONFLICT` lease so no job runs twice |
+| [**html-allowlist-sanitizer**](skills/html-allowlist-sanitizer/SKILL.md) | AI-written HTML → `dangerouslySetInnerHTML` → stored XSS | Uses an allowlist (not a blocklist) as a pure function that runs on server and browser, and ships with 9 attack payloads to test against |
 
-## Bahasa Indonesia
+### 🎬 Create content
 
-Kumpulan skill agent AI untuk bikin produk AI yang **hemat kuota, aman, dan tahan banting**
-di tier gratis/serverless. Semua diambil dari pola yang sudah jalan di production.
-Bisa dipakai di Claude Code, Codex (GPT), Antigravity, dan Gemini CLI. Pasang dengan
-`./install.sh`, lalu minta ke agent seperti biasa — skill dimuat otomatis kalau cocok.
+| Skill | The problem | What your agent does instead |
+| ----- | ----------- | ---------------------------- |
+| [**audio-lipsync-frames**](skills/audio-lipsync-frames/SKILL.md) | Phoneme lip-sync is heavy and glitchy | Drives 3 mouth shapes from voice loudness, smooths at 10 Hz, closes the mouth on pauses, and estimates timing for silent previews. Built for Remotion |
+| [**social-autopost-pipeline**](skills/social-autopost-pipeline/SKILL.md) | Graph API rules you only learn by failing | Covers Threads (500 chars, 1 tag) and Instagram carousels (public JPEGs, container polling), with post-once dedupe, 60-day token refresh, and a content-mix schedule |
 
-## License
+## 🔍 How it works
 
-MIT — see [LICENSE](LICENSE).
+```
+ you: "my gemini keys keep hitting 429"
+          │
+          ▼
+ agent reads every skill's description ──► match: llm-key-rotation
+          │
+          ▼
+ loads SKILL.md ──► steps + reference code + checklist
+          │
+          ▼
+ writes code that fits your stack, then goes through the checklist ✅
+```
+
+You never call a skill by hand. Just describe the problem:
+
+> *"Add rate limiting, Upstash keeps running out"* → `layered-api-shield`
+> *"The AI summary invents numbers"* → `llm-fact-guard`
+> *"Make my mascot talk in the Remotion video"* → `audio-lipsync-frames`
+
+Each `SKILL.md` stays under ~150 lines so it doesn't fill the agent's context. Every
+skill has a **why** (so the agent doesn't "simplify" away the important part), **steps**,
+**reference code** written to be adapted rather than pasted, and a **checklist**.
+
+## 🤝 Contributing
+
+Got a pattern that stopped a production fire? Add it.
+
+1. Create `skills/<kebab-name>/SKILL.md`, with the folder name matching `name:` in the frontmatter.
+2. Write a `description` that says **what it does + when to use it**. Agents match on these words.
+3. Keep it under ~150 lines and move long material to `references/`.
+4. Leave out secrets, account IDs, and company names. Run `./scripts/validate.sh`.
+
+## 🇮🇩 Bahasa Indonesia
+
+**frugal-ai-skills** adalah kumpulan *skill* untuk agent AI (Claude Code, Codex/GPT,
+Antigravity, Gemini CLI) supaya kode AI yang ditulis agent **hemat kuota, aman, dan
+nggak gampang tumbang** di tier gratis atau serverless.
+
+Semua diambil dari aplikasi yang beneran jalan di production, bukan teori:
+- rotasi banyak API key
+- rate limit yang cuma pakai 1 perintah Redis
+- pengecek angka karangan AI
+- komite multi-agent yang independen
+- cron hemat slot
+- sanitasi HTML
+- lip-sync karakter
+- auto-post Threads dan IG
+
+**Cara pakai:** `./install.sh`, terus ngobrol ke agent seperti biasa. Skill otomatis
+dipakai kalau masalahnya cocok.
+
+## 📄 License
+
+MIT. Pakai, ubah, dan jual sesuka kamu. Kasih ⭐ kalau ada skill yang menyelamatkan kuota kamu.
