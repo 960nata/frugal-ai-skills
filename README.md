@@ -40,7 +40,7 @@ the fixes that lasted, written as instructions any agent can follow.
 ## ⚡ Install in 30 seconds
 
 ```bash
-git clone https://github.com/NataKun7/frugal-ai-skills.git
+git clone https://github.com/960nata/frugal-ai-skills.git
 cd frugal-ai-skills && ./install.sh
 ```
 
